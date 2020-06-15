@@ -1,0 +1,43 @@
+spring:
+  cloud:
+    stream:
+      rabbit:
+        bindings:
+          rabbit1SubscriptionChannel:
+            consumer:
+              declareExchange: false
+              bindingRoutingKey: "client.*.notification.#"
+              queueNameGroupOnly: true
+          rabbit2SubscriptionChannel:
+            consumer:
+              queueNameGroupOnly: true
+      bindings:
+        rabbit1SubscriptionChannel:
+          binder: rabbit1
+          contentType: text/plain;charset=UTF-8
+          destination: amq.topic # exchange
+          group: externalQueue # queue
+        rabbit2SubscriptionChannel:
+          binder: rabbit2
+          destination: rabbit2.exchange
+          contentType: application/json
+      binders:
+        rabbit1:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                addresses: dockerhost:5764
+                username: custom
+                password: custom
+                virtual-host: /
+        rabbit2:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                addresses: dockerhost:5762
+                username: guest
+                password: guest
+                virtual-host: /
+      default-binder: rabbit2
